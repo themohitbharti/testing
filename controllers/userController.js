@@ -1,7 +1,7 @@
 require("dotenv").config()
 const User = require('../models/userModel.js');
 const Team = require('../models/teamModel.js');
-const {send_mail_registration,send_mail_OTP,send_mail_message}=require("./mailController");
+const {send_mail_registration,send_mail_OTP,send_mail_message,send_mail_verification}=require("./mailController");
 const{setUser,getUser}=require("../middleware/auth");
 const jwt=require("jsonwebtoken");
 
@@ -33,7 +33,8 @@ async function handleUserSignup(req, res) {
         name: body.name,
         email: body.email,
         password: body.password,
-        isLoggedIn:"No",      
+        isLoggedIn:"No",
+        emailVerified:"No",     
     }
     
     const result=await User.findOne({"email":user.email});
@@ -63,8 +64,12 @@ async function handleUserSignup(req, res) {
                     user.password = hash;
 
                     try {
+                        console.log("URL:",process.env.URL);
+                        console.log("email:",user.email);
                         const result = await User.create(user);
                         send_mail_registration(user.email,user.name);
+                        send_mail_verification(user.email,process.env.URL);
+
                         console.log("finaluser:", result);
                         return res.json("Signup Successfull!");
 
@@ -93,10 +98,16 @@ async function handleUserLogin(req,res){
 
     
         const user = await User.findOne({ "email":email });
+        const is_mail_verified=user.emailVerified;
+        if(is_mail_verified==="No"){
+            return res.status(400).json("Email not verified");
+        }
+
         console.log("user:",user);
         if (!user){
             
         return res.status(400).json("No such user found")}//or redirect to signup
+
         const Password=user.password;
 
         const isPasswordValid = await bcrypt.compare(password, Password);
@@ -311,6 +322,19 @@ async function checkUserRole(req, res) {
     }
   }
   
+  async function verifyMail(req,res){
+    try{
+        const{Email}=req.params;
+        const userVerify=await User.findOne({"email":Email});
+        userVerify.emailVerified="Yes";
+        await userVerify.save();
+        return res.json("Email verified successfully");
+
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({msg:"Internal server error"});
+    }
+  }
 
 
 module.exports={
@@ -322,5 +346,6 @@ module.exports={
     sendMessage,
     checkUserRole,
     DecodeJWT,
+    verifyMail,
 };
 

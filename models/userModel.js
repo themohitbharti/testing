@@ -44,6 +44,12 @@ const userSchema = new mongoose.Schema({
     required: false,
     default: 0,
   },
+  emailVerified:{
+    type:String,
+    required:false,
+    enum:["Yes","No"],
+    default:"No",
+  }
 });
 
 userSchema.plugin(findOrCreate);

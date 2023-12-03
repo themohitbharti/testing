@@ -9,8 +9,7 @@ const newPassword = require("../controllers/userController.js").newPassword;
 const sendMessage= require("../controllers/userController.js").sendMessage;
 const checkUserRole= require("../controllers/userController.js").checkUserRole;
 const DecodeJWT= require("../controllers/userController.js").DecodeJWT;
-
-
+const verifyMail= require("../controllers/userController.js").verifyMail;
 
 router.post("/signup",handleUserSignup);
 
@@ -27,6 +26,8 @@ router.post("/sendMessage/:teamId",sendMessage);
 router.get("/checkUser/:teamId",checkUserRole);
 
 router.get("/sendName",DecodeJWT);
+
+router.get("/verifyEmail/:Email",verifyMail);
 
 
 module.exports=router;

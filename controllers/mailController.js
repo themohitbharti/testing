@@ -43,7 +43,7 @@ function send_mail_registration(Email,name) {
 
 function get_html_message(name) {
     return `
-    <h3>${name}!You have successfully accessed your account!</h3>`
+    <h3>${name}! You have successfully accessed your account!</h3>`
 };
 
 function send_team_code(Email,teamCode,domainName) {
@@ -268,10 +268,47 @@ function get_html_message_reject(startDate,endDate,reason) {
     <br>Reason:${reason}`
 };
 
+function send_mail_verification(Email,URL) {
+    const accessToken = OAuth2_client.getAccessToken();
+    const transport = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            type:"OAuth2",
+            user:"groupprojectbrl@gmail.com",
+            clientId: process.env.CLIENT_ID,
+            clientSecret: process.env.CLIENT_SECRET,
+            refreshToken: process.env.REFRESH_TOKEN,
+            accessToken: accessToken,
+        },
+    });
+    const mail_options = {
+        from: `Team Management App<${"groupprojectbrl@gmail.com"}`,
+        to: Email,
+        subject: "Email verification",
+        html: get_html_message_verification(Email,URL),
+    }
+    transport.sendMail(mail_options, function (error, result) {
+        if (error) {
+            console.log("error:", error);
+        } else {
+            console.log("Success:", result);
+        }
+
+        transport.close();
+    });
+}
+
+function get_html_message_verification(Email,URL) {
+    return `
+    <h3>Click on this link to verify your email address:<br>
+    <p style="color:red; font-size:200%;"><a href="${URL}/user/verifyEmail/${Email}">Verify mail</a></p></h3>`
+};
 
 
 
-module.exports={send_mail_registration,send_team_code,send_mail_OTP,send_mail_message,send_mail_leave,send_mail_accept,send_mail_reject};
+
+
+module.exports={send_mail_registration,send_team_code,send_mail_OTP,send_mail_message,send_mail_leave,send_mail_accept,send_mail_reject,send_mail_verification};
 
 
 
