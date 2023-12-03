@@ -8,6 +8,7 @@ const verifyOTP = require("../controllers/userController.js").verifyOTP;
 const newPassword = require("../controllers/userController.js").newPassword;
 const sendMessage= require("../controllers/userController.js").sendMessage;
 const checkUserRole= require("../controllers/userController.js").checkUserRole;
+const DecodeJWT= require("../controllers/userController.js").DecodeJWT;
 
 
 
@@ -24,6 +25,8 @@ router.post("/newPassword/:email",newPassword);
 router.post("/sendMessage/:teamId",sendMessage);
 
 router.get("/checkUser/:teamId",checkUserRole);
+
+router.get("/sendName",DecodeJWT);
 
 
 module.exports=router;

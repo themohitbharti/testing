@@ -73,7 +73,7 @@ const ApplyleaveController = async (req, res) => {
       console.log("leaveid:",leaveId);
       send_mail_leave(leaderEmail, email,startDate,endDate,reason,URL,leaveId);
 
-      
+      return res.json(leaveinfo);
       return res.json("Your request has been submitted to the leader");
     }
   } catch (error) {

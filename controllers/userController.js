@@ -293,6 +293,25 @@ async function checkUserRole(req, res) {
     }
   }
 
+  async function DecodeJWT(req,res){
+    try{
+        const authorizationHeader = req.headers.authorization;
+  
+        if (!authorizationHeader) {
+          return res.status(401).json({ error: 'Authorization header missing' });
+        }
+    
+        const decodedToken = jwt.verify(authorizationHeader, process.env.SECRET_KEY_JWT);
+    
+        const name = decodedToken.name;
+        return res.json(name);   
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({error:"Internal server error"});
+    }
+  }
+  
+
 
 module.exports={
     handleUserSignup,
@@ -302,5 +321,6 @@ module.exports={
     newPassword,
     sendMessage,
     checkUserRole,
+    DecodeJWT,
 };
 
