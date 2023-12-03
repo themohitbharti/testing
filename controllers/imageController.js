@@ -10,8 +10,6 @@ const User = require('../models/userModel.js');
 
 
 
-
-
 const addImageController = async (req, res) => {
   const authorizationHeader = req.headers.authorization;
 
@@ -29,7 +27,7 @@ const addImageController = async (req, res) => {
   }
 
   const files = req.files.photo;
-  const teamId = req.body.teamId; 
+  const teamId = req.body.teamId; // Assuming teamId is passed in the request body
 
   cloudinary.uploader.upload(files.tempFilePath, function (err, result) {
       if (err) {
@@ -51,39 +49,39 @@ const addImageController = async (req, res) => {
   });
 };
 
+
+
 const showImageController = async (req, res) => {
-  const authorizationHeader = req.headers.authorization;
-
-  if (!authorizationHeader) {
+    const authorizationHeader = req.headers.authorization;
+  
+    if (!authorizationHeader) {
       return res.status(401).json({ error: 'Authorization header missing' });
-  }
-
-  const decodedToken = jwt.verify(authorizationHeader, process.env.SECRET_KEY_JWT);
-  const email = decodedToken.email;
-
-  const { imgName, teamId } = req.params; 
-
-  try {
+    }
+  
+    const decodedToken = jwt.verify(authorizationHeader, process.env.SECRET_KEY_JWT);
+    const email = decodedToken.email;
+  
+    const { teamId } = req.params; 
+  
+    try {
       const user = await User.findOne({ email: email });
       if (!user) {
-          return res.status(404).json({ error: 'User not found' });
+        return res.status(404).json({ error: 'User not found' });
       }
-
-      console.log(imgName);
-
-      const image = await Image.findOne({ userEmail: email, imgName: imgName, teamId: teamId });
-      if (!image) {
-          return res.status(404).json({ error: 'Image not found for the given user, name, and teamId' });
+  
+      const images = await Image.find({ userEmail: email, teamId: teamId });
+      if (!images || images.length === 0) {
+        return res.status(404).json({ error: 'No images found for the given user and teamId' });
       }
-
-      console.log(image);
-
-      res.json({ imgURL: image.img, imgName: image.imgName });
-  } catch (error) {
-      console.error('Error retrieving image:', error);
+  
+      const imageList = images.map(image => ({ imgURL: image.img, imgName: image.imgName }));
+      res.json(imageList);
+    } catch (error) {
+      console.error('Error retrieving images:', error);
       res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
+    }
+  };
+  
 
 module.exports = {
   addImageController,
